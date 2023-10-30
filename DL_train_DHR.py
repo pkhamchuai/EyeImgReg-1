@@ -101,7 +101,7 @@ class SP_DHR_Net(nn.Module):
             desc1_2, desc2, heatmap1_2, heatmap2
 
 # Define training function
-def train(model, model_params, timestamp):
+def train(model_params, timestamp):
     # Define loss function based on supervised or unsupervised learning
     criterion = model_params.loss_image
     extra = loss_extra()
@@ -109,6 +109,30 @@ def train(model, model_params, timestamp):
     if model_params.sup:
         criterion_affine = nn.MSELoss()
         # TODO: add loss for points1_affine and points2, Euclidean distance
+
+    model = SP_DHR_Net(model_params).to(device)
+    print(model)
+
+    parameters = model.parameters()
+    optimizer = optim.Adam(parameters, model_params.learning_rate)
+    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: model_params.decay_rate ** epoch)
+    model_path = args.model_path
+
+    # if a model is loaded, the training will continue from the epoch it was saved at
+    if model_path is not None:
+        model.load_state_dict(torch.load(model_path))
+        # print(model_path.split('/')[-1].split('_')[3])
+        model_params.start_epoch = int(model_path.split('/')[-1].split('_')[3])
+        print(f'Loaded model from {model_path}\nStarting at epoch {model_params.start_epoch}')
+        if model_params.start_epoch >= model_params.num_epochs:
+            model_params.num_epochs += model_params.start_epoch
+    else:
+        model_params.start_epoch = 0
+        print('No model loaded, starting from scratch')
+
+    # print case
+    print(model_params)
+    model_params.print_explanation()
 
     # Define optimizer
     optimizer = optim.Adam(model.parameters(), lr=model_params.learning_rate)
@@ -286,8 +310,14 @@ def train(model, model_params, timestamp):
         if file.endswith(".txt"):
             os.remove(os.path.join(output_dir, file))
 
+    # Save model
+    model_save_path = "trained_models/"
+    model_name_to_save = model_save_path + f"DHR_{model_params.get_model_code()}_{timestamp}.pth"
+    print(model_name_to_save)
+    torch.save(model.state_dict(), model_name_to_save)
+
     # Return epoch_loss_list
-    return epoch_loss_list
+    return model, epoch_loss_list
 
 
 def test(model, model_params, timestamp):
@@ -401,41 +431,12 @@ if __name__ == '__main__':
     print('Train set: ', [x.shape for x in next(iter(train_dataset))])
     print('Test set: ', [x.shape for x in next(iter(test_dataset))])
 
-    model = SP_DHR_Net(model_params).to(device)
-    print(model)
-
-    parameters = model.parameters()
-    optimizer = optim.Adam(parameters, model_params.learning_rate)
-    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: model_params.decay_rate ** epoch)
-    model_path = args.model_path
-
-    # if a model is loaded, the training will continue from the epoch it was saved at
-    if model_path is not None:
-        model.load_state_dict(torch.load(model_path))
-        # print(model_path.split('/')[-1].split('_')[3])
-        model_params.start_epoch = int(model_path.split('/')[-1].split('_')[3])
-        print(f'Loaded model from {model_path}\nStarting at epoch {model_params.start_epoch}')
-        if model_params.start_epoch >= model_params.num_epochs:
-            model_params.num_epochs += model_params.start_epoch
-    else:
-        model_params.start_epoch = 0
-        print('No model loaded, starting from scratch')
-
-    # print case
-    print(model_params)
-    model_params.print_explanation()
-
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    loss_list = train(model, model_params, timestamp)
+    model, loss_list = train(model_params, timestamp)
 
     print("Training output:")
     for i in range(len(loss_list)):
         print(loss_list[i])
-
-    model_save_path = "trained_models/"
-    model_name_to_save = model_save_path + f"DHR_{model_params.get_model_code()}_{timestamp}.pth"
-    print(model_name_to_save)
-    torch.save(model.state_dict(), model_name_to_save)
 
     print("Test model +++++++++++++++++++++++++++++")
 
