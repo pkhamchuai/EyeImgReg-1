@@ -709,7 +709,7 @@ def transform_points_DVF(points, M, image):
     displacement_field = torch.zeros(image.shape[-1], image.shape[-1])
     DVF = transform_to_displacement_field(
         displacement_field.view(1, 1, displacement_field.size(0), displacement_field.size(1)), 
-        torch.tensor(M).view(1, 2, 3))
+        M.clone().view(1, 2, 3))
     if isinstance(DVF, torch.Tensor):
         DVF = DVF.numpy()
     # loop through each point and apply the transformation

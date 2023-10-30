@@ -205,7 +205,7 @@ def train(model_params, timestamp):
                 # loss_points = criterion_points(points1_affine, points2)
 
                 loss += loss_affine
-            # loss.backward()
+            loss.backward()
             optimizer.step()
             scheduler.step()
 
