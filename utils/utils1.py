@@ -11,6 +11,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchir.metrics import NCC
 from skimage.metrics import structural_similarity as SSIM
+import sys
 
 from utils.utils0 import transform_to_displacement_field
 
@@ -239,7 +240,33 @@ class ModelParams:
 
     def __repr__(self):
         return self.model_name
+    
+
+def print_summary(model_params, loss_list, timestamp):
+    print("Training output:")
+    for i in range(len(loss_list)):
+        print(loss_list[i])
+
+    # save the output of print_explanation() and loss_list to a txt file
+    output_dir = f"output/{model_params.get_model_code()}_{timestamp}"
+    os.makedirs(output_dir, exist_ok=True)
+    save_txt_name = f"{output_dir}/train_output_{model_params.get_model_code()}_{timestamp}.txt"
+
+    with open(save_txt_name, 'w') as f:
+        f.write(model_params.get_model_code())
+        f.write('\n')
+
+    sys.stdout = open(save_txt_name, 'a')
+    model_params.print_explanation()
+    sys.stdout = sys.__stdout__
+
+    with open(save_txt_name, 'a') as f:
+        for i in range(len(loss_list)):
+            f.write(str(loss_list[i]) + '\n')
         
+    print(f"Output saved to {save_txt_name}")
+
+
 # Function to overlay points on the image
 def overlay_points(image, points, color=(0, 255, 0), radius=5):
     # check and convert image to 3-channel, if grayscale, 

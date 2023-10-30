@@ -1,3 +1,4 @@
+import sys
 import argparse
 import numpy as np
 import os
@@ -20,7 +21,7 @@ from torch.utils import data
 
 from utils.utils0 import *
 from utils.utils1 import *
-from utils.utils1 import ModelParams, DL_affine_plot
+from utils.utils1 import ModelParams, DL_affine_plot, print_summary
 from utils.datagen import datagen
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -121,8 +122,8 @@ def train(model_params, timestamp):
     # if a model is loaded, the training will continue from the epoch it was saved at
     if model_path is not None:
         model.load_state_dict(torch.load(model_path))
-        # print(model_path.split('/')[-1].split('_')[3])
-        model_params.start_epoch = int(model_path.split('/')[-1].split('_')[3])
+        # print(model_path.split('/')[-1].split('_'))
+        model_params.start_epoch = int(model_path.split('/')[-1].split('_')[4])
         print(f'Loaded model from {model_path}\nStarting at epoch {model_params.start_epoch}')
         if model_params.start_epoch >= model_params.num_epochs:
             model_params.num_epochs += model_params.start_epoch
@@ -303,7 +304,7 @@ def train(model_params, timestamp):
         plt.savefig(save_plot_name)
         # plt.show()
 
-    print('Finished Training')
+    print('\nFinished Training')
 
     # delete all txt files in output_dir
     for file in os.listdir(output_dir):
@@ -313,8 +314,8 @@ def train(model_params, timestamp):
     # Save model
     model_save_path = "trained_models/"
     model_name_to_save = model_save_path + f"DHR_{model_params.get_model_code()}_{timestamp}.pth"
-    print(model_name_to_save)
     torch.save(model.state_dict(), model_name_to_save)
+    print(f'Model saved in: {model_name_to_save}')
 
     # Return epoch_loss_list
     return model, epoch_loss_list
@@ -398,11 +399,13 @@ def test(model, model_params, timestamp):
             with open(csv_file, 'a', newline='') as file:
                 writer = csv.writer(file) # TODO: might need to export true & predicted affine parameters too
                 writer.writerow([i, mse_before, mse12, tre_before, tre12, mse12_image_before, mse12_image, ssim12_image_before, ssim12_image])
+    
+    print(f"The test results are saved in {csv_file}")
 
     # delete all txt files in output_dir
-    for file in os.listdir(output_dir):
-        if file.endswith(".txt"):
-            os.remove(os.path.join(output_dir, file))
+    # for file in os.listdir(output_dir):
+    #     if file.endswith(".txt"):
+    #         os.remove(os.path.join(output_dir, file))
 
 
 if __name__ == '__main__':
@@ -434,11 +437,10 @@ if __name__ == '__main__':
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     model, loss_list = train(model_params, timestamp)
 
-    print("Training output:")
-    for i in range(len(loss_list)):
-        print(loss_list[i])
+    # save the output of print_explanation() and loss_list to a txt file
+    print_summary(model_params, loss_list, timestamp)
 
-    print("Test model +++++++++++++++++++++++++++++")
+    print("\nTesting the trained model +++++++++++++++++++++++")
 
     # model = SPmodel = SP_AffineNet().to(device)
     # print(model)
@@ -449,6 +451,5 @@ if __name__ == '__main__':
 
     # model.load_state_dict(torch.load(model_name_to_save))
 
-    metrics = test(model, model_params, timestamp)
-    print(metrics)
+    test(model, model_params, timestamp)
     print("Test model finished +++++++++++++++++++++++++++++")
