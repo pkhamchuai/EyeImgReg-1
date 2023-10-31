@@ -115,7 +115,7 @@ def train(model_params, timestamp):
 
     model = SP_DHR_Net(model_params).to(device)
     print(model)
-    summary(model, input_size=[(1, 1, image_size, image_size), (1, 1, image_size, image_size)])
+    summary(model, [(1, 1, image_size, image_size), (1, 1, image_size, image_size)])
 
     parameters = model.parameters()
     optimizer = optim.Adam(parameters, model_params.learning_rate)
