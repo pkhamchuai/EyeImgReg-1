@@ -1,4 +1,4 @@
-import sys
+# import sys
 import argparse
 import numpy as np
 import os
@@ -14,12 +14,15 @@ from datetime import datetime
 from tqdm import tqdm
 
 import torch
-from torchvision import transforms
+# from torchvision import transforms
 from torch import nn, optim
-import torch.nn.functional as F
-from torch.utils import data
-from torchsummary import summary
-torch.manual_seed(0)
+# import torch.nn.functional as F
+# from torch.utils import data
+# from torchsummary import summary
+# from pytorch_model_summary import summary
+
+# print('Seed:', torch.seed())
+torch.manual_seed(9793047918980052389)
 
 from utils.utils0 import *
 from utils.utils1 import *
@@ -36,10 +39,8 @@ if int(cv2.__version__[0]) < 3: # pragma: no cover
 
 image_size = 256
 
-# from networks import affine_network_simple as an
 # from utils.SuperPoint import SuperPointFrontend
 # from utils.utils1 import transform_points_DVF
-
 
 # Define training function
 def train(model_params, timestamp):
@@ -52,9 +53,6 @@ def train(model_params, timestamp):
         # TODO: add loss for points1_affine and points2, Euclidean distance
 
     model = SP_AffineNet1(model_params).to(device)
-    print(model)
-    summary(model, input_size=[(1, 1, image_size, image_size), (1, 1, image_size, image_size)])
-
     parameters = model.parameters()
     optimizer = optim.Adam(parameters, model_params.learning_rate)
     scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: model_params.decay_rate ** epoch)

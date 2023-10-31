@@ -14,12 +14,14 @@ from datetime import datetime
 from tqdm import tqdm
 
 import torch
-from torchvision import transforms
+# from torchvision import transforms
 from torch import nn, optim
-import torch.nn.functional as F
-from torch.utils import data
-from torchsummary import summary
-torch.manual_seed(0)
+# import torch.nn.functional as F
+# from torch.utils import data
+from pytorch_model_summary import summary
+
+# print('Seed:', torch.seed())
+torch.manual_seed(9793047918980052389)
 
 from utils.utils0 import *
 from utils.utils1 import *
@@ -49,12 +51,10 @@ class SP_DHR_Net(nn.Module):
         self.model_params = model_params
         print("\nRunning new version (not run SP on source image)")
 
-    def forward(self, source_image, target_image):
-        # source_image = source_image.to(device)
-        # target_image = target_image.to(device)
+        # inputs = torch.rand((1, 1, image_size, image_size)), torch.rand((1, 1, image_size, image_size))
+        # summary(self.affineNet, *inputs, show_input=True, show_hierarchical=True, print_summary=True)
 
-        # print('source_image: ', source_image.shape)
-        # print('target_image: ', target_image.shape)
+    def forward(self, source_image, target_image):
         points1, desc1, heatmap1 = self.superpoint(source_image[0, 0, :, :].cpu().numpy())
         points2, desc2, heatmap2 = self.superpoint(target_image[0, 0, :, :].cpu().numpy())
 
@@ -86,10 +86,6 @@ class SP_DHR_Net(nn.Module):
         # take the elements from points1 and points2 using the matches as indices
         matches1 = np.array(points1[:2, matches[0, :].astype(int)])
         matches2 = np.array(points2[:2, matches[1, :].astype(int)])
-        # matches1_2 = np.array(points1_2[:2, matches[0, :].astype(int)])
-        # print('matches1', matches1)
-        # print('matches2', matches2)
-        # print('matches1_2', matches1_2)
 
         # try:
         #     matches1_2 = points1_2[:2, matches[0, :].astype(int)]
@@ -115,7 +111,6 @@ def train(model_params, timestamp):
 
     model = SP_DHR_Net(model_params).to(device)
     print(model)
-    summary(model, [(1, 1, image_size, image_size), (1, 1, image_size, image_size)])
 
     parameters = model.parameters()
     optimizer = optim.Adam(parameters, model_params.learning_rate)

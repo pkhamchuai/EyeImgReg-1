@@ -6,6 +6,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 from torchsummary import summary
+# from pytorch_model_summary import summary
 
 
 class Affine_Network(nn.Module):
@@ -104,6 +105,7 @@ class Feature_Extractor(nn.Module):
 def load_network(device, path=None):
     model = Affine_Network(device)
     model = model.to(device)
+    # summary(model, [(1, 1, 256, 256), (1, 1, 256, 256)])
     if path is not None:
         model.load_state_dict(torch.load(path))
         model.eval()
