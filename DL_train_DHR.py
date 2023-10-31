@@ -138,7 +138,7 @@ def train(model_params, timestamp):
     running_loss_list = []
     
     # Create output directory
-    output_dir = f"output/{model_params.get_model_code()}_{timestamp}"
+    output_dir = f"output/DHR_{model_params.get_model_code()}_{timestamp}"
     os.makedirs(output_dir, exist_ok=True)
     save_plot_name = f"{output_dir}/loss_{model_params.get_model_code()}_epoch{model_params.num_epochs}_{timestamp}.png"
 
@@ -321,7 +321,7 @@ def test(model, model_params, timestamp):
     model.eval()
 
     # Create output directory
-    output_dir = f"output/{model_params.get_model_code()}_{timestamp}_test"
+    output_dir = f"output/DHR_{model_params.get_model_code()}_{timestamp}_test"
     os.makedirs(output_dir, exist_ok=True)
 
     # Validate model
