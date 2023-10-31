@@ -18,6 +18,8 @@ from torchvision import transforms
 from torch import nn, optim
 import torch.nn.functional as F
 from torch.utils import data
+from torchinfo import summary
+torch.manual_seed(0)
 
 from utils.utils0 import *
 from utils.utils1 import *
@@ -34,9 +36,9 @@ if int(cv2.__version__[0]) < 3: # pragma: no cover
 
 image_size = 256
 
-from networks import affine_network_simple as an
-from utils.SuperPoint import SuperPointFrontend
-from utils.utils1 import transform_points_DVF
+# from networks import affine_network_simple as an
+# from utils.SuperPoint import SuperPointFrontend
+# from utils.utils1 import transform_points_DVF
 
 
 # Define training function
@@ -51,6 +53,7 @@ def train(model_params, timestamp):
 
     model = SP_AffineNet1(model_params).to(device)
     print(model)
+    summary(model, input_size=[(1, 1, image_size, image_size), (1, 1, image_size, image_size)])
 
     parameters = model.parameters()
     optimizer = optim.Adam(parameters, model_params.learning_rate)
@@ -70,11 +73,8 @@ def train(model_params, timestamp):
         print('No model loaded, starting from scratch')
 
     # print case
-    print(model_params)
+    # print(model_params)
     model_params.print_explanation()
-
-    # Define optimizer
-    optimizer = optim.Adam(model.parameters(), lr=model_params.learning_rate)
 
     # Create empty list to store epoch number, train loss and validation loss
     epoch_loss_list = []

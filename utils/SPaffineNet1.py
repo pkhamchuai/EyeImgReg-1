@@ -15,7 +15,7 @@ class SP_AffineNet1(nn.Module):
         super(SP_AffineNet1, self).__init__()
         self.superpoint = SuperPointFrontend('utils/superpoint_v1.pth', nms_dist=4,
                           conf_thresh=0.015, nn_thresh=0.7, cuda=True)
-        self.affineNet = AffineNet3()
+        self.affineNet = AffineNet1()
         self.nn_thresh = 0.7
         self.model_params = model_params
         print("\nRunning new version (not run SP on source image)")
@@ -74,9 +74,9 @@ class SP_AffineNet1(nn.Module):
         return transformed_source_affine, affine_params, matches1, matches2, matches1_2, \
             desc1_2, desc2, heatmap1_2, heatmap2
 
-class AffineNet3(nn.Module):
+class AffineNet1(nn.Module):
     def __init__(self):
-        super(AffineNet3, self).__init__()
+        super(AffineNet1, self).__init__()
         self.conv1f = 64
         self.conv2f = 128
         self.conv3f = 256

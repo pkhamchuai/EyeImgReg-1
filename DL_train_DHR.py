@@ -18,6 +18,8 @@ from torchvision import transforms
 from torch import nn, optim
 import torch.nn.functional as F
 from torch.utils import data
+from torchinfo import summary
+torch.manual_seed(0)
 
 from utils.utils0 import *
 from utils.utils1 import *
@@ -113,6 +115,7 @@ def train(model_params, timestamp):
 
     model = SP_DHR_Net(model_params).to(device)
     print(model)
+    summary(model, input_size=[(1, 1, image_size, image_size), (1, 1, image_size, image_size)])
 
     parameters = model.parameters()
     optimizer = optim.Adam(parameters, model_params.learning_rate)
@@ -132,11 +135,8 @@ def train(model_params, timestamp):
         print('No model loaded, starting from scratch')
 
     # print case
-    print(model_params)
+    # print(model_params)
     model_params.print_explanation()
-
-    # Define optimizer
-    optimizer = optim.Adam(model.parameters(), lr=model_params.learning_rate)
 
     # Create empty list to store epoch number, train loss and validation loss
     epoch_loss_list = []
