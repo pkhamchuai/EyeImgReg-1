@@ -18,7 +18,7 @@ from torchvision import transforms
 from torch import nn, optim
 import torch.nn.functional as F
 from torch.utils import data
-from torchinfo import summary
+from torchsummary import summary
 torch.manual_seed(0)
 
 from utils.utils0 import *
