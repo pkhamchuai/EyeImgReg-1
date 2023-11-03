@@ -91,11 +91,11 @@ class AffineNet3(nn.Module):
         self.conv1s = nn.Conv2d(self.conv1f, self.conv1f, 2, stride=2, padding_mode='zeros')
         self.conv2s = nn.Conv2d(self.conv2f, self.conv2f, 2, stride=2, padding_mode='zeros')
         self.conv3s = nn.Conv2d(self.conv3f, self.conv3f, 2, stride=2, padding_mode='zeros')
-        self.fc1 = nn.Linear(self.conv3f*2, 128)
-        self.fc2 = nn.Linear(128, 64)
+        self.fc1 = nn.Linear(self.conv3f*2, 64)
+        # self.fc2 = nn.Linear(128, 64)
         self.fc3 = nn.Linear(64, 6)
 
-        self.dropout = nn.Dropout(p=0.7)
+        self.dropout = nn.Dropout(p=0.9)
         self.aPooling = nn.AdaptiveAvgPool2d((1, 1))
         # self.ReLU = nn.PReLU()
         self.ReLU = nn.LeakyReLU()
@@ -126,7 +126,7 @@ class AffineNet3(nn.Module):
         # print(t.shape)
         t = self.ReLU(self.dropout(self.fc1(t.flatten())))
         # print(t.shape)
-        t = self.fc3(self.ReLU(self.dropout(self.fc2(t))))
+        t = self.fc3(self.ReLU(t))
         t = t.view(-1, 2, 3)
         # print(t.shape)
 
