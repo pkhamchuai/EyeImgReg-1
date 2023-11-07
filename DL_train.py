@@ -28,7 +28,6 @@ from utils.utils0 import *
 from utils.utils1 import *
 from utils.utils1 import ModelParams, DL_affine_plot, print_summary
 from utils.datagen import datagen
-from utils.SPaffineNet1 import SP_AffineNet1
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f'Device: {device}')
@@ -43,7 +42,7 @@ image_size = 256
 # from utils.utils1 import transform_points_DVF
 
 # Define training function
-def train(model_params, timestamp):
+def train(model_name, model_params, timestamp):
     # Define loss function based on supervised or unsupervised learning
     criterion = model_params.loss_image
     extra = loss_extra()
@@ -52,7 +51,22 @@ def train(model_params, timestamp):
         criterion_affine = nn.MSELoss()
         # TODO: add loss for points1_affine and points2, Euclidean distance
 
-    model = SP_AffineNet1(model_params).to(device)
+    if model_name == 'SP_AffineNet1':
+        from utils.SPaffineNet1 import SP_AffineNet1
+        model = SP_AffineNet1(model_params).to(device)
+    elif model_name == 'SP_AffineNet1_alt':
+        from utils.SPaffineNet1_alt import SP_AffineNet1_alt
+        model = SP_AffineNet1_alt(model_params).to(device)
+    elif model_name == 'SP_AffineNet2':
+        from utils.SPaffineNet2 import SP_AffineNet2
+        model = SP_AffineNet2(model_params).to(device)
+    elif model_name == 'SP_AffineNet2_alt':
+        from utils.SPaffineNet2_alt import SP_AffineNet2_alt
+        model = SP_AffineNet1_alt(model_params).to(device)
+    elif model_name == 'SP_AffineNet3':
+        from utils.SPaffineNet3 import SP_AffineNet3
+        model = SP_AffineNet3(model_params).to(device)
+
     parameters = model.parameters()
     optimizer = optim.Adam(parameters, model_params.learning_rate)
     scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: model_params.decay_rate ** epoch)
@@ -249,7 +263,7 @@ def train(model_params, timestamp):
 
     # Save model
     model_save_path = "trained_models/"
-    model_name_to_save = model_save_path + f"{model_params.get_model_code()}_{timestamp}.pth"
+    model_name_to_save = model_save_path + f"{model_name}_{model_params.get_model_code()}_{timestamp}.pth"
     torch.save(model.state_dict(), model_name_to_save)
     print(f'Model saved in: {model_name_to_save}')
 
@@ -257,12 +271,12 @@ def train(model_params, timestamp):
     return model, epoch_loss_list
 
 
-def test(model, model_params, timestamp):
+def test(model_name, model, model_params, timestamp):
     # Set model to training mode
     model.eval()
 
     # Create output directory
-    output_dir = f"output/{model_params.get_model_code()}_{timestamp}_test"
+    output_dir = f"output/{model_name}_{model_params.get_model_code()}_{timestamp}_test"
     os.makedirs(output_dir, exist_ok=True)
 
     # Validate model
@@ -355,6 +369,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_epochs', type=int, default=10, help='number of epochs')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='learning rate')
     parser.add_argument('--decay_rate', type=float, default=0.96, help='decay rate')
+    parser.add_argument('--model, -m', type=str, default=None, help='which model to use')
     parser.add_argument('--model_path', type=str, default=None, help='path to model to load')
     args = parser.parse_args()
 
@@ -370,7 +385,7 @@ if __name__ == '__main__':
     print('Test set: ', [x.shape for x in next(iter(test_dataset))])
 
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    model, loss_list = train(model_params, timestamp)
+    model, loss_list = train(args.model, model_params, timestamp)
 
     # save the output of print_explanation() and loss_list to a txt file
     print_summary(model_params, loss_list, timestamp)
@@ -386,5 +401,5 @@ if __name__ == '__main__':
 
     # model.load_state_dict(torch.load(model_name_to_save))
 
-    test(model, model_params, timestamp)
+    test(args.model, model, model_params, timestamp)
     print("Test model finished +++++++++++++++++++++++++++++")
