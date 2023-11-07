@@ -242,13 +242,13 @@ class ModelParams:
         return self.model_name
     
 
-def print_summary(model_params, loss_list, timestamp):
+def print_summary(model_name, model_params, loss_list, timestamp):
     print("Training output:")
     for i in range(len(loss_list)):
         print(loss_list[i])
 
     # save the output of print_explanation() and loss_list to a txt file
-    output_dir = f"output/{model_params.get_model_code()}_{timestamp}"
+    output_dir = f"output/{model_name}_{model_params.get_model_code()}_{timestamp}"
     os.makedirs(output_dir, exist_ok=True)
     save_txt_name = f"{output_dir}/train_output_{model_params.get_model_code()}_{timestamp}.txt"
 

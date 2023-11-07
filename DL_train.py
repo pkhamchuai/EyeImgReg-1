@@ -21,8 +21,8 @@ from torch import nn, optim
 # from torchsummary import summary
 # from pytorch_model_summary import summary
 
-# print('Seed:', torch.seed())
-torch.manual_seed(9793047918980052389)
+print('Seed:', torch.seed())
+# torch.manual_seed(9793047918980052389)
 
 from utils.utils0 import *
 from utils.utils1 import *
@@ -62,7 +62,7 @@ def train(model_name, model_params, timestamp):
         model = SP_AffineNet2(model_params).to(device)
     elif model_name == 'SP_AffineNet2_alt':
         from utils.SPaffineNet2_alt import SP_AffineNet2_alt
-        model = SP_AffineNet1_alt(model_params).to(device)
+        model = SP_AffineNet2_alt(model_params).to(device)
     elif model_name == 'SP_AffineNet3':
         from utils.SPaffineNet3 import SP_AffineNet3
         model = SP_AffineNet3(model_params).to(device)
@@ -93,7 +93,7 @@ def train(model_name, model_params, timestamp):
     running_loss_list = []
     
     # Create output directory
-    output_dir = f"output/{model_params.get_model_code()}_{timestamp}"
+    output_dir = f"output/{model_name}_{model_params.get_model_code()}_{timestamp}"
     os.makedirs(output_dir, exist_ok=True)
     save_plot_name = f"{output_dir}/loss_{model_params.get_model_code()}_epoch{model_params.num_epochs}_{timestamp}.png"
 
@@ -249,7 +249,7 @@ def train(model_name, model_params, timestamp):
         plt.legend()
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
-        plt.yscale('log')
+        # plt.yscale('log')
         plt.tight_layout()
         plt.savefig(save_plot_name)
         # plt.show()
@@ -369,7 +369,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_epochs', type=int, default=10, help='number of epochs')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='learning rate')
     parser.add_argument('--decay_rate', type=float, default=0.96, help='decay rate')
-    parser.add_argument('--model, -m', type=str, default=None, help='which model to use')
+    parser.add_argument('--model', type=str, default=None, help='which model to use')
     parser.add_argument('--model_path', type=str, default=None, help='path to model to load')
     args = parser.parse_args()
 
@@ -388,7 +388,7 @@ if __name__ == '__main__':
     model, loss_list = train(args.model, model_params, timestamp)
 
     # save the output of print_explanation() and loss_list to a txt file
-    print_summary(model_params, loss_list, timestamp)
+    print_summary(args.model, model_params, loss_list, timestamp)
 
     print("\nTesting the trained model +++++++++++++++++++++++")
 
