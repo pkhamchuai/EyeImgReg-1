@@ -367,7 +367,7 @@ if __name__ == '__main__':
     parser.add_argument('--heatmaps', type=int, default=0, help='use heatmaps (1) or not (0)')
     parser.add_argument('--loss_image', type=int, default=0, help='loss function for image registration')
     parser.add_argument('--num_epochs', type=int, default=10, help='number of epochs')
-    parser.add_argument('--learning_rate', type=float, default=0.001, help='learning rate')
+    parser.add_argument('--learning_rate', type=float, default=1e-4, help='learning rate')
     parser.add_argument('--decay_rate', type=float, default=0.96, help='decay rate')
     parser.add_argument('--model', type=str, default=None, help='which model to use')
     parser.add_argument('--model_path', type=str, default=None, help='path to model to load')
