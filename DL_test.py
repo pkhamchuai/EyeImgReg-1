@@ -21,8 +21,8 @@ from torch import nn, optim
 # from torchsummary import summary
 # from pytorch_model_summary import summary
 
+torch.manual_seed(9793047918980052389)
 print('Seed:', torch.seed())
-# torch.manual_seed(9793047918980052389)
 
 from utils.utils0 import *
 from utils.utils1 import *
@@ -155,17 +155,25 @@ def test(model_name, model_params, timestamp):
             ssim12_image = results[8]
 
             # append metrics to metrics list
-            metrics.append([i, mse_before, mse12, tre_before, tre12, mse12_image_before, mse12_image, ssim12_image_before, ssim12_image])
+            metrics.append([i, mse_before, mse12, tre_before, tre12, mse12_image_before, mse12_image, 
+                            ssim12_image_before, ssim12_image])
 
     with open(csv_file, 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["index", "mse_before", "mse12", "tre_before", "tre12", "mse12_image_before", "mse12_image", "ssim12_image_before", "ssim12_image"])
+        writer.writerow(["index", "mse_before", "mse12", "tre_before", "tre12", "mse12_image_before", 
+                         "mse12_image", "ssim12_image_before", "ssim12_image"])
         for i in range(len(metrics)):
             writer.writerow(metrics[i])
         # write the average and std of the metrics
         metrics = np.array(metrics)
-        writer.writerow(["average", np.mean(metrics[:, 1]), np.mean(metrics[:, 2]), np.mean(metrics[:, 3]), np.mean(metrics[:, 4]), np.mean(metrics[:, 5]), np.mean(metrics[:, 6]), np.mean(metrics[:, 7]), np.mean(metrics[:, 8])])
-        writer.writerow(["std", np.std(metrics[:, 1]), np.std(metrics[:, 2]), np.std(metrics[:, 3]), np.std(metrics[:, 4]), np.std(metrics[:, 5]), np.std(metrics[:, 6]), np.std(metrics[:, 7]), np.std(metrics[:, 8])])
+        nan_mask = np.isnan(metrics).any(axis=1)
+        metrics = metrics[~nan_mask]
+        avg = ["average", np.mean(metrics[:, 1]), np.mean(metrics[:, 2]), np.mean(metrics[:, 3]), np.mean(metrics[:, 4]), 
+            np.mean(metrics[:, 5]), np.mean(metrics[:, 6]), np.mean(metrics[:, 7]), np.mean(metrics[:, 8])]
+        std = ["std", np.std(metrics[:, 1]), np.std(metrics[:, 2]), np.std(metrics[:, 3]), np.std(metrics[:, 4]), 
+            np.std(metrics[:, 5]), np.std(metrics[:, 6]), np.std(metrics[:, 7]), np.std(metrics[:, 8])]
+        writer.writerow(avg)
+        writer.writerow(std)
 
     print(f"The test results are saved in {csv_file}")
 

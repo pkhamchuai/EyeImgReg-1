@@ -1,0 +1,18 @@
+00100_0.0001_0_10_1
+
+Model name:  dataset0_sup0_image1_heatmaps0_loss_image0
+Model code:  00100_0.0001_0_10_1
+Dataset used:  Actual eye
+Supervised or unsupervised model:  Unsupervised
+Image type:  Image used
+Heatmaps used:  Heatmaps not used
+Loss function case:  0
+Loss function for image:  MSELoss()
+Loss function for affine:  None
+Learning rate:  0.0001
+Decay rate:  0.96
+Start epoch:  0
+Number of epochs:  10
+Batch size:  1
+
+

@@ -21,8 +21,8 @@ from torch import nn, optim
 # from torchsummary import summary
 # from pytorch_model_summary import summary
 
+torch.manual_seed(9793047918980052389)
 print('Seed:', torch.seed())
-# torch.manual_seed(9793047918980052389)
 
 from utils.utils0 import *
 from utils.utils1 import *
@@ -161,7 +161,7 @@ def train(model_name, model_params, timestamp):
             scheduler.step()
 
             # Plot images if i < 5
-            if i % 100 == 0:
+            if i % 50 == 0:
                 DL_affine_plot(f"epoch{epoch+1}_train", output_dir,
                     f"{i}", "_", source_image[0, 0, :, :].detach().cpu().numpy(), target_image[0, 0, :, :].detach().cpu().numpy(), 
                     transformed_source_affine[0, 0, :, :].detach().cpu().numpy(),

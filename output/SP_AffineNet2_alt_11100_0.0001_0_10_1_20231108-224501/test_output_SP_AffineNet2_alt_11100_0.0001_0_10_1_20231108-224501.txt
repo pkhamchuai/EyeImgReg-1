@@ -1,0 +1,28 @@
+11100_0.0001_0_10_1
+
+Model name:  dataset1_sup1_image1_heatmaps0_loss_image0
+Model code:  11100_0.0001_0_10_1
+Dataset used:  Synthetic eye easy
+Supervised or unsupervised model:  Supervised
+Image type:  Image used
+Heatmaps used:  Heatmaps not used
+Loss function case:  0
+Loss function for image:  MSELoss()
+Loss function for affine:  <utils.utils1.loss_affine object at 0x7f14cef6c850>
+Learning rate:  0.0001
+Decay rate:  0.96
+Start epoch:  0
+Number of epochs:  10
+Batch size:  1
+
+
+[1, 0.2742186378315091, 0.14211864732205867]
+[2, 0.2417096037045121, 0.14198737643659115]
+[3, 0.23166160026099533, 0.14198138296604157]
+[4, 0.2373972038179636, 0.141961070522666]
+[5, 0.23063779721036554, 0.14192066468298437]
+[6, 0.23994623014703392, 0.1419735760986805]
+[7, 0.24595166701823473, 0.14194922342896463]
+[8, 0.24542229847982525, 0.14198535062372686]
+[9, 0.22364807749167084, 0.1419627808779478]
+[10, 0.23826781699433922, 0.14198439605534077]

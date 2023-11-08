@@ -24,12 +24,12 @@ class MyDataset(torch.utils.data.Dataset):
                 transforms.ToTensor(),
                 transforms.Lambda(lambda x: x + 0.01 * torch.randn_like(x))
             ])
-        # elif transform is None and self.sup == False: # if unsupervised, apply random transformation too
-        #     self.transform = transforms.Compose([
-        #         transforms.ToTensor(),
-        #         transforms.Lambda(lambda x: x + 0.01 * torch.randn_like(x)),
-        #         transforms.RandomAffine(degrees=10, translate=(0.1, 0.1), scale=(0.9, 1.1), shear=5)
-        #     ])
+        elif transform is None and self.sup == False: # if unsupervised, apply random transformation too
+            self.transform = transforms.Compose([
+                transforms.ToTensor(),
+                # transforms.Lambda(lambda x: x + 0.01 * torch.randn_like(x)),
+                # transforms.RandomAffine(degrees=10, translate=(0.1, 0.1), scale=(0.9, 1.1), shear=5)
+            ])
 
     def __len__(self):
         return len(self.df)
