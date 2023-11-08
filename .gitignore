@@ -2,4 +2,4 @@
 \.ipynb_checkpoints
 test.ipynb
 *:Zone.Identifier
-*.png
+output/*/*.png
