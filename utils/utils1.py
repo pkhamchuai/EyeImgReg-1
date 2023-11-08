@@ -76,8 +76,10 @@ class ModelParams:
                  learning_rate=0.001, decay_rate = 0.96, num_epochs=10, batch_size=1):
         # dataset: dataset used
         # dataset=0: actual eye
-        # dataset=1: synthetic eye
-        # dataset=2: synthetic shape
+        # dataset=1: synthetic eye easy
+        # dataset=2: synthetic eye medium
+        # dataset=3: synthetic eye hard
+        # dataset=4: synthetic shape
         # sup: supervised or unsupervised model
         # sup=0: unsupervised model
         # sup=1: supervised model
@@ -219,7 +221,9 @@ class ModelParams:
         print('\nModel name: ', self.model_name)
         print('Model code: ', self.model_code)
         print('Dataset used: ', 'Actual eye' if self.dataset == 0 else \
-                'Synthetic eye' if self.dataset == 1 else \
+                'Synthetic eye easy' if self.dataset == 1 else \
+                'Synthetic eye medium' if self.dataset == 2 else \
+                'Synthetic eye hard' if self.dataset == 3 else \
                 'Synthetic shape')
         print('Supervised or unsupervised model: ', 'Supervised' if self.sup else 'Unsupervised')
         print('Image type: ', 'Image not used' if self.image == 0 else \
@@ -242,15 +246,19 @@ class ModelParams:
         return self.model_name
     
 
-def print_summary(model_name, model_params, loss_list, timestamp):
+def print_summary(model_name, model_params, loss_list, timestamp, test=False):
     print("Training output:")
-    for i in range(len(loss_list)):
-        print(loss_list[i])
+    if loss_list is not None:
+        for i in range(len(loss_list)):
+            print(loss_list[i])
 
     # save the output of print_explanation() and loss_list to a txt file
-    output_dir = f"output/{model_name}_{model_params.get_model_code()}_{timestamp}"
+    if test:
+        output_dir = f"output/{model_name}_{model_params.get_model_code()}_{timestamp}_test"
+    else:
+        output_dir = f"output/{model_name}_{model_params.get_model_code()}_{timestamp}"
     os.makedirs(output_dir, exist_ok=True)
-    save_txt_name = f"{output_dir}/train_output_{model_params.get_model_code()}_{timestamp}.txt"
+    save_txt_name = f"{output_dir}/test_output_{model_name}_{model_params.get_model_code()}_{timestamp}.txt"
 
     with open(save_txt_name, 'w') as f:
         f.write(model_params.get_model_code())
@@ -261,8 +269,9 @@ def print_summary(model_name, model_params, loss_list, timestamp):
     sys.stdout = sys.__stdout__
 
     with open(save_txt_name, 'a') as f:
-        for i in range(len(loss_list)):
-            f.write(str(loss_list[i]) + '\n')
+        if loss_list is not None:
+            for i in range(len(loss_list)):
+                f.write(str(loss_list[i]) + '\n')
         
     print(f"Output saved to {save_txt_name}")
 

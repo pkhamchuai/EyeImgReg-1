@@ -352,6 +352,21 @@ def test(model_name, model, model_params, timestamp):
     
     print(f"The test results are saved in {csv_file}")
 
+    # calculate average and std for each column, save at the last row of csv file
+    with open(csv_file, 'r') as file:
+        reader = csv.reader(file)
+        rows = list(reader)
+        rows = rows[1:]
+        rows = np.array(rows).astype(np.float)
+        # calculate average and std for each column
+        avg = np.mean(rows, axis=0)
+        std = np.std(rows, axis=0)
+        # append average and std to the last row of csv file
+        with open(csv_file, 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["average"] + list(avg))
+            writer.writerow(["std"] + list(std))
+
     # delete all txt files in output_dir
     # for file in os.listdir(output_dir):
     #     if file.endswith(".txt"):
@@ -388,18 +403,9 @@ if __name__ == '__main__':
     model, loss_list = train(args.model, model_params, timestamp)
 
     # save the output of print_explanation() and loss_list to a txt file
-    print_summary(args.model, model_params, loss_list, timestamp)
+    print_summary(args.model, model_params, loss_list, timestamp, False)
 
     print("\nTesting the trained model +++++++++++++++++++++++")
-
-    # model = SPmodel = SP_AffineNet().to(device)
-    # print(model)
-
-    # parameters = model.parameters()
-    # optimizer = optim.Adam(parameters, model_params.learning_rate)
-    # scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: model_params.decay_rate ** epoch)
-
-    # model.load_state_dict(torch.load(model_name_to_save))
 
     test(args.model, model, model_params, timestamp)
     print("Test model finished +++++++++++++++++++++++++++++")
