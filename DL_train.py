@@ -282,13 +282,9 @@ def test(model_name, model, model_params, timestamp):
     # Validate model
     # validation_loss = 0.0
 
+    metrics = []
     # create a csv file to store the metrics
     csv_file = f"{output_dir}/metrics.csv"
-    with open(csv_file, 'w', newline='') as file:
-        writer = csv.writer(file)
-        # matches1_transformed.shape[-1], mse_before, mse12, tre_before, tre12, \
-        # mse12_image, ssim12_image, 
-        writer.writerow(["index", "mse_before", "mse12", "tre_before", "tre12", "mse12_image_before", "mse12_image", "ssim12_image_before", "ssim12_image"])
 
     with torch.no_grad():
         testbar = tqdm(test_dataset, desc=f'Testing:')
@@ -322,7 +318,7 @@ def test(model_name, model, model_params, timestamp):
             heatmap1 = outputs[7]
             heatmap2 = outputs[8]
 
-            if i < 50:
+            if i < 10:
                 plot_ = True
             else:
                 plot_ = False
@@ -345,27 +341,20 @@ def test(model_name, model, model_params, timestamp):
             ssim12_image_before = results[7]
             ssim12_image = results[8]
 
-            # write metrics to csv file
-            with open(csv_file, 'a', newline='') as file:
-                writer = csv.writer(file) # TODO: might need to export true & predicted affine parameters too
-                writer.writerow([i, mse_before, mse12, tre_before, tre12, mse12_image_before, mse12_image, ssim12_image_before, ssim12_image])
-    
-    print(f"The test results are saved in {csv_file}")
+            # append metrics to metrics list
+            metrics.append([i, mse_before, mse12, tre_before, tre12, mse12_image_before, mse12_image, ssim12_image_before, ssim12_image])
 
-    # calculate average and std for each column, save at the last row of csv file
-    with open(csv_file, 'r') as file:
-        reader = csv.reader(file)
-        rows = list(reader)
-        rows = rows[1:]
-        rows = np.array(rows).astype(np.float)
-        # calculate average and std for each column
-        avg = np.mean(rows, axis=0)
-        std = np.std(rows, axis=0)
-        # append average and std to the last row of csv file
-        with open(csv_file, 'a', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(["average"] + list(avg))
-            writer.writerow(["std"] + list(std))
+    with open(csv_file, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["index", "mse_before", "mse12", "tre_before", "tre12", "mse12_image_before", "mse12_image", "ssim12_image_before", "ssim12_image"])
+        for i in range(len(metrics)):
+            writer.writerow(metrics[i])
+        # write the average and std of the metrics
+        metrics = np.array(metrics)
+        writer.writerow(["average", np.mean(metrics[:, 1]), np.mean(metrics[:, 2]), np.mean(metrics[:, 3]), np.mean(metrics[:, 4]), np.mean(metrics[:, 5]), np.mean(metrics[:, 6]), np.mean(metrics[:, 7]), np.mean(metrics[:, 8])])
+        writer.writerow(["std", np.std(metrics[:, 1]), np.std(metrics[:, 2]), np.std(metrics[:, 3]), np.std(metrics[:, 4]), np.std(metrics[:, 5]), np.std(metrics[:, 6]), np.std(metrics[:, 7]), np.std(metrics[:, 8])])
+
+    print(f"The test results are saved in {csv_file}")
 
     # delete all txt files in output_dir
     # for file in os.listdir(output_dir):
@@ -408,4 +397,6 @@ if __name__ == '__main__':
     print("\nTesting the trained model +++++++++++++++++++++++")
 
     test(args.model, model, model_params, timestamp)
+    print_summary(args.model, model_params, None, timestamp, True)
+    
     print("Test model finished +++++++++++++++++++++++++++++")
